@@ -26,8 +26,6 @@ def generate_scene_plots(
     forest: gpd.GeoDataFrame,
     water: gpd.GeoDataFrame,
     manual_no_build: gpd.GeoDataFrame,
-    candidate_transformer: gpd.GeoDataFrame | None,
-    candidate_poles: gpd.GeoDataFrame | None,
     output_dir: str | Path,
 ) -> dict[str, Path]:
     """Generate all standard visualization products for the scene."""
@@ -76,8 +74,6 @@ def generate_scene_plots(
         forest=forest,
         water=water,
         manual_no_build=manual_no_build,
-        candidate_transformer=None,
-        candidate_poles=None,
     )
     _save_overlay_plot(
         background=dtm,
@@ -88,8 +84,6 @@ def generate_scene_plots(
         forest=forest,
         water=water,
         manual_no_build=manual_no_build,
-        candidate_transformer=candidate_transformer,
-        candidate_poles=candidate_poles,
     )
     return outputs
 
@@ -137,8 +131,6 @@ def _save_overlay_plot(
     forest: gpd.GeoDataFrame,
     water: gpd.GeoDataFrame,
     manual_no_build: gpd.GeoDataFrame,
-    candidate_transformer: gpd.GeoDataFrame | None,
-    candidate_poles: gpd.GeoDataFrame | None,
 ) -> None:
     """Render a terrain background with vector feature overlays."""
 
@@ -151,20 +143,16 @@ def _save_overlay_plot(
     if not manual_no_build.empty:
         manual_no_build.plot(ax=ax, facecolor="none", edgecolor="#e03c2a", linewidth=2.0, linestyle="--")
     if not users.empty:
-        users.plot(ax=ax, marker="o", markersize=10, facecolor="#000000", edgecolor="white", linewidth=0.5, alpha=0.90)
-    if candidate_transformer is not None and not candidate_transformer.empty:
-        candidate_transformer.plot(ax=ax, color="#ff4f9a", markersize=16, marker="s")
-    if candidate_poles is not None and not candidate_poles.empty:
-        candidate_poles.plot(ax=ax, color="#111111", markersize=8, marker=".")
+        users.plot(ax=ax, marker=".", markersize=10, facecolor="#000000", edgecolor="white", linewidth=0.5, alpha=0.90)
 
     legend_handles = [
-        Patch(facecolor="#4a9e5c", edgecolor="#1d5e2e", alpha=0.20, linewidth=1.4, label="Vegetation"),
+        Patch(facecolor="#4a9e5c", edgecolor="#1d5e2e", alpha=0.20, linewidth=1.4, label="Forest"),
         Patch(facecolor="#5ba8e8", edgecolor="#1a4a8f", alpha=0.25, linewidth=1.4, label="Water"),
         Patch(facecolor="none", edgecolor="#e03c2a", linewidth=2.0, linestyle="--", label="Manual No-Build"),
         Line2D(
             [0],
             [0],
-            marker="o",
+            marker=".",
             color="w",
             markerfacecolor="#000000",
             markeredgecolor="white",
@@ -173,29 +161,6 @@ def _save_overlay_plot(
             label="Users",
         ),
     ]
-    if candidate_transformer is not None:
-        legend_handles.append(
-            Line2D(
-                [0],
-                [0],
-                marker="s",
-                color="w",
-                markerfacecolor="#ff4f9a",
-                markersize=7,
-                label="Transformer Candidates",
-            )
-        )
-    if candidate_poles is not None:
-        legend_handles.append(
-            Line2D(
-                [0],
-                [0],
-                marker=".",
-                color="#111111",
-                markersize=10,
-                label="Pole Candidates",
-            )
-        )
 
     ax.legend(handles=legend_handles, loc="upper right", fontsize=10, framealpha=0.9, edgecolor="gray")
     ax.set_title(title)
