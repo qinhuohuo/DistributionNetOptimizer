@@ -234,7 +234,7 @@ def build_scene_3d_overlays(
         profile=profile,
         label="Users",
         color="#000000",
-        size=3.0,
+        size=6.0,
         z_offset=point_offset,
         text_column="user_id",
         text_prefix="user_id",
