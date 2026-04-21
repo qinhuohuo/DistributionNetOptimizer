@@ -259,6 +259,7 @@ def _save_matplotlib_surface(
 
     fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111, projection="3d")
+    ax.computed_zorder = False
     plot = ax.plot_surface(
         surface.x,
         surface.y,
@@ -281,7 +282,7 @@ def _save_matplotlib_surface(
             color=line.color,
             linewidth=line.width,
             label=label,
-            zorder=10,
+            zorder=50,
         )
         seen_labels.add(line.label)
 
@@ -292,13 +293,13 @@ def _save_matplotlib_surface(
             point.y,
             point.z,
             color=point.color,
-            s=(point.size * 4) ** 2,
+            s=(point.size * 2) ** 2,
             marker="o",
             depthshade=False,
             edgecolors="white",
             linewidths=0.5,
             label=label,
-            zorder=20,
+            zorder=100,
         )
         seen_labels.add(point.label)
 
