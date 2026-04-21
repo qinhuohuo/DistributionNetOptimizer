@@ -149,7 +149,7 @@ python -m src.main refresh-manual --config configs/default_config.yaml
 
 随机地形由 `generate-scene` 命令触发，实际参数来自配置文件中的 `scene` 和 `terrain`。
 
-关键参数在 [configs/default_config.yaml](C:/Users/LHY/Desktop/MyProject_test/DistributionNetOptimizer/configs/default_config.yaml)：
+关键参数在 [configs/default_config.yaml](configs/default_config.yaml)：
 
 ```yaml
 scene:
@@ -262,7 +262,40 @@ obstacles:
 - `manual_no_build` 默认视为禁建
 - `forest` 既可能只是高通行成本区，也可能部分被标成禁行区
 
-## 8. 如何手动划取 `manual no-build` 区域
+## 8. 可视化规范
+
+### 8.1 统一颜色体系
+
+| 要素 | 颜色 | 说明 |
+|------|------|------|
+| 地形低处 | 青 `#00ffff` | 最低海拔 |
+| 地形中部 | 绿 `#00ff88` → 黄 `#ffff00` | 中等海拔 |
+| 地形高处 | 橙 `#ff8800` → 红 `#ff0000` | 最高海拔 |
+| 用户点 | 黑 `#000000` + 白边 | 小圆点 |
+|  Vegetation | 浅绿 `#4a9e5c` + 深绿边 `#1d5e2e` | 半透明填充 |
+| 水区 | 浅蓝 `#5ba8e8` + 深蓝边 `#1a4a8f` | 半透明填充 |
+| 人工禁建区 | 无填充 + 红虚线边 `#e03c2a` | 虚线边框 |
+
+### 8.2 要素显示规则
+
+- 用户：统一用**黑色小圆点**（白色边框），不使用星型或其他符号
+- 候选变压器/电杆：2D 图中默认**不显示**（已在 `plot_scene.py` 中设置 `candidate_transformer=None`, `candidate_poles=None`）
+- 3D 图：用户点用小圆点，略微抬高避免被地形遮挡
+
+### 8.3 图例规范
+
+- 图例放在图的**右上角**
+- 图例符号应与图中实际显示样式一致（干净示意符号）
+- 图例背景半透明 (`framealpha=0.9`)
+
+### 8.4 地形颜色渐变
+
+- 2D/3D 统一采用 `cyan → green → yellow → orange → red` 渐变
+- 低海拔：青/绿
+- 中海拔：黄
+- 高海拔：橙/红
+
+## 9. 如何手动划取 `manual no-build` 区域
 
 这里推荐两种方式。
 
@@ -348,7 +381,7 @@ python -m src.main refresh-manual --config configs/default_config.yaml --manual-
 
 #### 步骤 1：打开这个文件
 
-- [data/vector/features.gpkg](C:/Users/LHY/Desktop/MyProject_test/DistributionNetOptimizer/data/vector/features.gpkg)
+- [data/vector/features.gpkg](data/vector/features.gpkg)
 
 #### 步骤 2：直接编辑 `manual_no_build` 图层
 
@@ -373,7 +406,7 @@ python -m src.main derive-terrain --config configs/default_config.yaml
 python -m src.main plot-scene --config configs/default_config.yaml
 ```
 
-## 9. 三维预览参数
+## 10. 三维预览参数
 
 三维预览使用配置文件中的 `visualization` 段：
 
@@ -394,7 +427,7 @@ visualization:
 
 为了避免在 `5000 x 5000` 正式场景上直接做原尺寸 3D 绘图，程序会先对 `dtm.tif` 做降采样再预览。
 
-## 10. 推荐的实际使用流程
+## 11. 推荐的实际使用流程
 
 ### 轻量测试
 
@@ -420,7 +453,7 @@ python -m src.main plot-terrain-3d --config configs/default_config.yaml
 
 ### 只调整随机参数并重新生成
 
-修改 [configs/default_config.yaml](C:/Users/LHY/Desktop/MyProject_test/DistributionNetOptimizer/configs/default_config.yaml) 里的：
+修改 [configs/default_config.yaml](configs/default_config.yaml) 里的：
 
 - `scene.seed`
 - `terrain.*`
@@ -435,7 +468,7 @@ python -m src.main generate-scene --config configs/default_config.yaml
 python -m src.main plot-terrain-3d --config configs/default_config.yaml
 ```
 
-## 11. 测试
+## 12. 测试
 
 ```bash
 python -m pytest -q
@@ -450,7 +483,7 @@ python -m pytest -q
 - 用户点与障碍物的空间一致性
 - 3D 地形预览文件输出
 
-## 12. 当前实现说明
+## 13. 当前实现说明
 
 目前版本已经能作为首版场景生成器使用，但有几点需要知道：
 
@@ -458,4 +491,4 @@ python -m pytest -q
 - `manual_no_build` 支持随机初始生成，也支持后续手工补画
 - `plot-terrain-3d` 依赖已有的 `dtm.tif`
 - `candidate_transformer`、`candidate_poles`、`planned_lines` 仍然是为后续优化阶段预留的接口层
-- 正式大场景 `5000 x 5000 @ 1m` 数据量较大，第一次建议先用 `demo_small.yaml` 验证流程
+- 默认场景 `3000 x 3000 @ 1m` 数据量适中，第一次建议先用 `demo_small.yaml` 验证流程

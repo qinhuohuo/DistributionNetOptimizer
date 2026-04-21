@@ -12,6 +12,18 @@ matplotlib.use("Agg")
 import numpy as np
 import plotly.graph_objects as go
 from matplotlib import pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+
+
+def _cyan_red_colormap() -> LinearSegmentedColormap:
+    colors = [
+        (0.0, "#00ffff"),
+        (0.25, "#00ff88"),
+        (0.5, "#ffff00"),
+        (0.75, "#ff8800"),
+        (1.0, "#ff0000"),
+    ]
+    return LinearSegmentedColormap.from_list("cyan_red", colors)
 
 
 @dataclass(slots=True)
@@ -182,8 +194,8 @@ def build_scene_3d_overlays(
             gdf=forest,
             dtm=dtm,
             profile=profile,
-            label="Forest",
-            color="#1f7a37",
+            label="Vegetation",
+            color="#1d5e2e",
             width=3.0,
             z_offset=line_offset,
         )
@@ -194,7 +206,7 @@ def build_scene_3d_overlays(
             dtm=dtm,
             profile=profile,
             label="Water",
-            color="#2a7fff",
+            color="#1a4a8f",
             width=3.4,
             z_offset=line_offset * 1.15,
         )
@@ -205,7 +217,7 @@ def build_scene_3d_overlays(
             dtm=dtm,
             profile=profile,
             label="Manual No-Build",
-            color="#e1493a",
+            color="#e03c2a",
             width=3.6,
             z_offset=line_offset * 1.3,
         )
@@ -227,7 +239,7 @@ def build_scene_3d_overlays(
         dtm=dtm,
         profile=profile,
         label="Users",
-        color="#f8f32b",
+        color="#000000",
         size=7.0,
         z_offset=point_offset,
         text_column="user_id",
@@ -285,10 +297,10 @@ def _save_matplotlib_surface(
         surface.x,
         surface.y,
         surface.z,
-        cmap="terrain",
+        cmap=_cyan_red_colormap(),
         linewidth=0.0,
         antialiased=True,
-        alpha=0.94,
+        alpha=0.70,
     )
     colorbar = fig.colorbar(plot, ax=ax, shrink=0.7, pad=0.08)
     colorbar.set_label("Elevation (m)")
@@ -307,9 +319,10 @@ def _save_matplotlib_surface(
             point.z,
             color=point.color,
             s=point.size**2,
+            marker="o",
             depthshade=False,
-            edgecolors="black" if point.color != "#111111" else point.color,
-            linewidths=0.35,
+            edgecolors="white" if point.color != "#000000" else "white",
+            linewidths=0.5,
             label=label,
         )
         seen_labels.add(point.label)
@@ -364,7 +377,13 @@ def _save_plotly_surface(
                 x=surface.x,
                 y=surface.y,
                 z=surface.z,
-                colorscale="Earth",
+                colorscale=[
+                    [0.0, "#00ffff"],
+                    [0.25, "#00ff88"],
+                    [0.5, "#ffff00"],
+                    [0.75, "#ff8800"],
+                    [1.0, "#ff0000"],
+                ],
                 colorbar={"title": "Elevation (m)"},
                 hovertemplate="X=%{x:.1f} m<br>Y=%{y:.1f} m<br>Z=%{z:.2f} m<extra></extra>",
                 name="Terrain",
